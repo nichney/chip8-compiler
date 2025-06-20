@@ -108,12 +108,12 @@ int convert_char_to_nnn(char* nnn){
     // 1. If the string is empty or contains non-numeric characters.
     // 2. If the conversion resulted in an overflow/underflow (ERANGE).
     if (end == nnn || *end != '\0' || errno == ERANGE) {
-        return NULL; // Error: Not a valid number
+        return ERR_LARGE_DIGIT; // Error: Not a valid number
     }
 
     // Check if the address fits within 12 bits (0x000 to 0xFFF).
     if (address < 0 || address > 0xFFF) {
-        return NULL; // Error: Address is too large for 12 bits
+        return ERR_LARGE_DIGIT; // Error: Address is too large for 12 bits
     }
 
     return address & 0x0fff; // return just 12 bits
@@ -163,7 +163,7 @@ int handle_jp(char* nnn){
     }
     // nnn -> int
     int address = convert_char_to_nnn(nnn);
-    if(address == NULL){
+    if(address == ERR_LARGE_DIGIT){
         return ERR_LARGE_DIGIT;
     }
     // return 0x1nnn
@@ -188,13 +188,12 @@ int handle_reg_jp(char* reg, char* nnn){
 
     // in instruction JP V0, addr register number must be 0
     if(reg_id != 0x0){
-        printf("Error: register must be V0");
-        return 0x0002;
+        return ERR_MISSING_OPERAND;
     }
 
     // get address
     int address = convert_char_to_nnn(nnn);
-    if(address == NULL){
+    if(address == ERR_LARGE_DIGIT){
         return ERR_LARGE_DIGIT;
     }
 
@@ -207,7 +206,7 @@ int handle_call(char* nnn){
         return ERR_MISSING_OPERAND; // missing operand error
     }
     int address = convert_char_to_nnn(nnn);    
-    if(address == NULL){
+    if(address == ERR_LARGE_DIGIT){
         return ERR_LARGE_DIGIT;
     }
 
@@ -233,7 +232,7 @@ int handle_se(char* reg, char* kk){
     int kk_reg = get_reg_id(kk);
     if(kk_reg == REG_ERR_UNKNOWN){ // so, kk in not a register, it's a byte
         kk_reg = convert_char_to_nnn(kk);
-        if(kk_reg == NULL){
+        if(kk_reg == ERR_LARGE_DIGIT){
             return ERR_LARGE_DIGIT;
         }
         kk_reg = kk_reg & 0xff; // we need only 1 byte
@@ -274,7 +273,7 @@ int handle_sne(char* reg, char* kk){
     int kk_reg = get_reg_id(kk);
     if(kk_reg == REG_ERR_UNKNOWN){ // so, kk in not a register, it's a byte
         kk_reg = convert_char_to_nnn(kk);
-        if(kk_reg == NULL){
+        if(kk_reg == ERR_LARGE_DIGIT){
             return ERR_LARGE_DIGIT;
         }
         kk_reg = kk_reg & 0xff; // we need only 1 byte
