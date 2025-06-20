@@ -1,2 +1,2 @@
 build:
-	gcc main.c utils.c -o chip8-compiler
+	gcc main.c utils.c parser.c -o chip8-compiler
