@@ -108,7 +108,7 @@ int convert_char_to_nnn(char* nnn){
     // 1. If the string is empty or contains non-numeric characters.
     // 2. If the conversion resulted in an overflow/underflow (ERANGE).
     if (end == nnn || *end != '\0' || errno == ERANGE) {
-        return 0x0002; // Error: Not a valid number
+        return NULL; // Error: Not a valid number
     }
 
     // Check if the address fits within 12 bits (0x000 to 0xFFF).
@@ -122,8 +122,9 @@ int convert_char_to_nnn(char* nnn){
 int get_reg_id(char* reg){
     // reg is in format 'Vx', where x is one of 0-F
     if(strlen(reg) < 2)
-        printf("Error: missing register number on '%s'", reg);
         return REG_ERR_MISSING;
+    if(reg[0] != 'V')
+            return REG_ERR_UNKNOWN;
     switch(reg[1]){
         case '0': return 0;
         case '1': return 1;
@@ -142,7 +143,6 @@ int get_reg_id(char* reg){
         case 'E': return 0xe;
         case 'F': return 0xf;
         default: 
-            prinf("Error: unknown register number on '%s'", reg);
             return REG_ERR_UNKNOWN;
     }
 }
@@ -180,10 +180,10 @@ int handle_reg_jp(char* reg, char* nnn){
 
     //check for errors
     if(reg_id == REG_ERR_UNKNOWN){
-        return 0x0002;
+        return REG_ERR_UNKNOWN;
     }
     else if(reg_id == REG_ERR_MISSING){
-        return 0x0002;
+        return REG_ERR_MISSING;
     }
 
     // in instruction JP V0, addr register number must be 0
@@ -214,7 +214,46 @@ int handle_call(char* nnn){
     return 0x2000 | address;
 }
 
+int handle_se(char* reg, char* kk){
+    if(reg == NULL || kk == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // find out register number
+    int reg_id = get_reg_id(reg);
 
+    //check for errors
+    if(reg_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    else if(reg_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+
+    // there are 2 SE: one where both operand are registers, and one where the register is only first
+    int kk_reg = get_reg_id(kk);
+    if(kk_reg == REG_ERR_UNKNOWN){ // so, kk in not a register, it's a byte
+        kk_reg = convert_char_to_nnn(kk);
+        if(kk_reg == NULL){
+            return ERR_LARGE_DIGIT;
+        }
+        kk_reg = kk_reg & 0xff; // we need only 1 byte
+
+        // return 3xkk
+        return 0x3000 | (reg_id & 0xf) << 8 | kk_reg;
+
+
+    } else{ // kk is a register
+        
+        if(kk_reg == REG_ERR_MISSING){
+            return REG_ERR_MISSING;
+        }
+
+        // return 5xy0
+        return 0x5000 | (reg_id & 0xf) << 8 | (kk_reg & 0xf) << 4;
+    }
+
+
+}
 
 
 
