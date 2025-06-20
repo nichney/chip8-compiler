@@ -29,16 +29,25 @@ int main(int argc, char* argv[]){
         int opcode = parse_for_opcode(line);
 
         // check for error on parsing
-        if(opcode == ERR_UNKNOWN_MNEMONIC){
-            printf("Error: unknown mnemonic on line '%s'", line);
-            break;
-        }
-        else if (opcode == ERR_LARGE_DIGIT){
-            printf("Error: too large digit on line '%s'", line);
-            break;
-        }
-        else if (opcode == ERR_MISSING_OPERAND){
-            printf("Error: missing operand on line '%s'", line);
+        switch(opcode){
+            case ERR_UNKNOWN_MNEMONIC:
+                printf("Error: unknown mnemonic on line '%s'\n", line);
+                return 1;
+            case ERR_LARGE_DIGIT:
+                printf("Error: too large digit on line '%s'\n", line);
+                return 2;
+            case ERR_MISSING_OPERAND:
+                printf("Error: missing operand on line '%s'\n", line);
+                return 3;
+            case REG_ERR_UNKNOWN:
+                prinf("Error: unknown register number on '%s'\n", line);
+                return 4;
+            case REG_ERR_MISSING:
+                printf("Error: missing register number on '%s'\n", line);
+                return 5;
+            default:
+                printf("Error on line '%s'\n", line)
+
         }
 
         fputc(((opcode & 0xff00) >> 8), outp); // writing high byte
