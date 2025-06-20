@@ -255,6 +255,45 @@ int handle_se(char* reg, char* kk){
 
 }
 
+int handle_sne(char* reg, char* kk){
+    if(reg == NULL || kk == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // find out register number
+    int reg_id = get_reg_id(reg);
 
+    //check for errors
+    if(reg_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    else if(reg_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+
+    // there are 2 SE: one where both operand are registers, and one where the register is only first
+    int kk_reg = get_reg_id(kk);
+    if(kk_reg == REG_ERR_UNKNOWN){ // so, kk in not a register, it's a byte
+        kk_reg = convert_char_to_nnn(kk);
+        if(kk_reg == NULL){
+            return ERR_LARGE_DIGIT;
+        }
+        kk_reg = kk_reg & 0xff; // we need only 1 byte
+
+        // return 4xkk
+        return 0x4000 | (reg_id & 0xf) << 8 | kk_reg;
+
+
+    } else{ // kk is a register
+        
+        if(kk_reg == REG_ERR_MISSING){
+            return REG_ERR_MISSING;
+        }
+
+        // return 9xy0
+        return 0x9000 | (reg_id & 0xf) << 8 | (kk_reg & 0xf) << 4;
+    }
+
+
+}
 
 
