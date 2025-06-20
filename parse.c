@@ -113,7 +113,7 @@ int convert_char_to_nnn(char* nnn){
 
     // Check if the address fits within 12 bits (0x000 to 0xFFF).
     if (address < 0 || address > 0xFFF) {
-        return ERR_LARGE_DIGIT; // Error: Address is too large for 12 bits
+        return NULL; // Error: Address is too large for 12 bits
     }
 
     return address & 0x0fff; // return just 12 bits
@@ -158,14 +158,23 @@ int handle_sys(char* nnn){
 
 
 int handle_jp(char* nnn){
+    if(nnn == NULL){
+        return ERR_MISSING_OPERAND; // missing operand error
+    }
     // nnn -> int
     int address = convert_char_to_nnn(nnn);
+    if(address == NULL){
+        return ERR_LARGE_DIGIT;
+    }
     // return 0x1nnn
     return 0x1000 | address;
     
 }
 
 int handle_reg_jp(char* reg, char* nnn){
+    if(reg == NULL || nnn == NULL){
+        return ERR_MISSING_OPERAND; // missing operand error
+    }
     // find out register number
     int reg_id = get_reg_id(reg);
 
@@ -185,12 +194,25 @@ int handle_reg_jp(char* reg, char* nnn){
 
     // get address
     int address = convert_char_to_nnn(nnn);
+    if(address == NULL){
+        return ERR_LARGE_DIGIT;
+    }
 
     // return Bnnn
     return 0xb000 | address;
 }
 
+int handle_call(char* nnn){
+    if(nnn == NULL){
+        return ERR_MISSING_OPERAND; // missing operand error
+    }
+    int address = convert_char_to_nnn(nnn);    
+    if(address == NULL){
+        return ERR_LARGE_DIGIT;
+    }
 
+    return 0x2000 | address;
+}
 
 
 
