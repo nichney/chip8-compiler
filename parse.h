@@ -6,5 +6,6 @@
 #define ERR_UNKNOWN_MNEMONIC -1
 #define ERR_LARGE_DIGIT -2
 #define ERR_MISSING_OPERAND -3
+#define ERR_INVALID_OPERAND -6
 
 int parse_for_opcodes(char*);

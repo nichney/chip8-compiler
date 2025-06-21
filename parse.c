@@ -440,6 +440,273 @@ int handle_ld(char* x, char* y){
     }
 }
 
+int handle_add(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){ // y is byte
+        y_id = convert_char_to_nnn(y);
+        if(y_id == ERR_LARGE_DIGIT || y_id > 0xff)
+            return ERR_LARGE_DIGIT;
+        return 0x7000 | (x_id & 0xf) << 8 | y_id;
+    }
+
+    return 0x8004 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+
+}
+
+int handle_or(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x8001 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_and(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x8002 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_xor(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x8003 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_sub(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x8005 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_shr(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x8006 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_subn(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x8007 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_shl(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    return 0x800e | (x_id & 0xf) << 8 | (y_id & 0xf) << 4;
+}
+
+int handle_rnd(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = convert_char_to_nnn(y);
+    if(y_id == ERR_LARGE_DIGIT || y_id > 0xff){
+        return ERR_LARGE_DIGIT;
+    }
+
+    return 0xc000 | (x_id & 0xf) << 8 | y_id;
+}
+
+int handle_drw(char* x, char* y, char* n){
+    if(x == NULL || y == NULL || n == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    int y_id = get_reg_id(y);
+    if(y_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(y_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+
+    int n_id = convert_char_to_nnn(n);
+    if(n_id == ERR_LARGE_DIGIT || n_id > 0xf){
+        return ERR_LARGE_DIGIT;
+    }
+
+    return 0xd000 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4 | n_id;
+}
+
+int handle_skp(char* x){
+    if(x == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    return 0xe09e | (x_id & 0xf) << 8;
+}
+
+int handle_sknp(char* x){
+    if(x == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    if(x_id == REG_ERR_MISSING){
+        return REG_ERR_MISSING;
+    }
+    if(x_id == REG_ERR_UNKNOWN){
+        return REG_ERR_UNKNOWN;
+    }
+    return 0xe0a1 | (x_id & 0xf) << 8;
+}
+
+
 
 
 
