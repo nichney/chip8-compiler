@@ -46,4 +46,6 @@
 |                                                     | special operand         | 8 bit register         |     |
 |                                                     | Vx                      | \[I]                   |     |
 |                                                     | 8 bit register          | special operand        |     |
+|                                                     | Vx                      | K                      |     |
+|                                                     | 8 bit register          | special operand        |     |
 
