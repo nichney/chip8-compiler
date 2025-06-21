@@ -8,4 +8,4 @@
 #define ERR_MISSING_OPERAND -3
 #define ERR_INVALID_OPERAND -6
 
-int parse_for_opcodes(char*);
+int parse_for_opcode(char*);

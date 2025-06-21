@@ -1,5 +1,8 @@
+#include "parse.h"
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 int handle_sys(char*);
 int handle_jp(char*);
@@ -209,7 +212,8 @@ int handle_reg_jp(char* reg, char* nnn){
 
     //check for errors
     if(reg_id == REG_ERR_UNKNOWN){
-        return REG_ERR_UNKNOWN;
+        //return REG_ERR_UNKNOWN;
+        return handle_jp(reg);
     }
     else if(reg_id == REG_ERR_MISSING){
         return REG_ERR_MISSING;
@@ -331,8 +335,6 @@ int handle_ld(char* x, char* y){
     // check if x is a regular register
     int x_id = get_reg_id(x);
     int y_id;
-    if(x_id == REG_ERR_MISSING)
-        return REG_ERR_MISSING;
 
     if(x_id == REG_ERR_UNKNOWN){
         // so, x  is not a regular reguster, it's special
@@ -416,7 +418,7 @@ int handle_ld(char* x, char* y){
                 if(y_id == ERR_LARGE_DIGIT)
                     return ERR_LARGE_DIGIT;
                 if(y_id > 0xff)
-                    return ERR_ALRGE_DIGIT
+                    return ERR_LARGE_DIGIT;
                 // return 0x6xkk
                 return 0x6000 | (x_id & 0xf) << 8 | y_id;
             } else{
