@@ -40,14 +40,14 @@ int main(int argc, char* argv[]){
                 printf("Error: missing operand on line '%s'\n", line);
                 return 3;
             case REG_ERR_UNKNOWN:
-                prinf("Error: unknown register number on '%s'\n", line);
+                printf("Error: unknown register number on line '%s'\n", line);
                 return 4;
             case REG_ERR_MISSING:
-                printf("Error: missing register number on '%s'\n", line);
+                printf("Error: missing register number on line '%s'\n", line);
                 return 5;
-            default:
-                printf("Error on line '%s'\n", line)
-
+            case ERR_INVALID_OPERAND:
+                printf("Error: invalid operand on line '%s'\n", line);
+                return 6;
         }
 
         fputc(((opcode & 0xff00) >> 8), outp); // writing high byte

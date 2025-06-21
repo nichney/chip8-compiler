@@ -119,6 +119,35 @@ int convert_char_to_nnn(char* nnn){
     return address & 0x0fff; // return just 12 bits
 }
 
+int get_special_reg(char* reg){
+    // for special registers, like I, [I], ST and DT
+    // Step 1: separate registers by length
+    // On length 3 we check only if it's a [I]
+    // On length 2 it could be ST or DT
+    // On length 1 it could be I, K,  F or B (technically, they're not registers, but they used in
+    // chip8 assembly language as special operands)
+    // If no special reg found, return REG_ERR_UNKNOWN
+    size_t length = strlen(reg);
+    if(length == 3){ // It's [I]
+        if(reg[0] == '[' && reg[1] == 'I' && reg[2] == ']')
+            return 0x1; // means [I] special word
+    }
+    else if (length == 2){ // ST or DT
+        if(reg[1] == 'T'){
+            if(reg[0] == 'S') return 0x2; // means ST
+            else if (reg[0] == 'D') return 0x3; // means DT
+        }
+    }
+    else if (length == 1){
+        if(reg[0] == 'I') return 0x4; // means I
+        else if (reg[0] == 'F') return 0x5; // means F
+        else if (reg[0] == 'B') return 0x6; // means B
+        else if (reg[0] == 'K') return 0x7; // means K
+    }
+
+    return REG_ERR_UNKNOWN; // if no register found
+}
+
 int get_reg_id(char* reg){
     // reg is in format 'Vx', where x is one of 0-F
     if(strlen(reg) < 2)
@@ -294,5 +323,132 @@ int handle_sne(char* reg, char* kk){
 
 
 }
+
+int handle_ld(char* x, char* y){
+    if(x == NULL || y == NULL){
+        return ERR_MISSING_OPERAND; 
+    }
+    // check if x is a regular register
+    int x_id = get_reg_id(x);
+    int y_id;
+    if(x_id == REG_ERR_MISSING)
+        return REG_ERR_MISSING;
+
+    if(x_id == REG_ERR_UNKNOWN){
+        // so, x  is not a regular reguster, it's special
+        x_id = get_special_reg(x);
+        if(x_id == REG_ERR_UNKNOWN){
+            return REG_ERR_UNKNOWN;
+        }
+        switch(x_id){
+            case 0x4: // x is I, so y must be addr
+                y_id = convert_char_to_nnn(y);
+                if(y_id == ERR_LARGE_DIGIT){
+                    return ERR_LARGE_DIGIT;
+                }
+                // return 0xannn
+                return 0xa000 | y_id;
+            case 0x3: // x is DT, so y must be regular register
+                y_id = get_reg_id(y);
+                if(y_id == REG_ERR_MISSING){
+                    return REG_ERR_MISSING;
+                } else if(y_id == REG_ERR_UNKNOWN){
+                    return ERR_INVALID_OPERAND;
+                } else {
+                    // return 0xfx15
+                    return 0xf015 | (y_id & 0xf) << 8;
+                }
+            case 0x2: // x is ST, so y must be regular register
+                y_id = get_reg_id(y);
+                if(y_id == REG_ERR_MISSING){
+                    return REG_ERR_MISSING;
+                } else if(y_id == REG_ERR_UNKNOWN){
+                    return ERR_INVALID_OPERAND;
+                } else {
+                    // return 0xfx18
+                    return 0xf018 | (y_id & 0xf) << 8;
+                }
+            case 0x5: // x is F, so y must be regular register
+                y_id = get_reg_id(y);
+                if(y_id == REG_ERR_MISSING){
+                    return REG_ERR_MISSING;
+                } else if(y_id == REG_ERR_UNKNOWN){
+                    return ERR_INVALID_OPERAND;
+                } else {
+                    // return 0xfx29
+                    return 0xf029 | (y_id & 0xf) << 8;
+                }
+            case 0x6: // x is B
+                y_id = get_reg_id(y);
+                if(y_id == REG_ERR_MISSING){
+                    return REG_ERR_MISSING;
+                } else if(y_id == REG_ERR_UNKNOWN){
+                    return ERR_INVALID_OPERAND;
+                } else {
+                    // return 0xfx33
+                    return 0xf033 | (y_id & 0xf) << 8;
+                }
+            case 0x1: // x is [I]
+                y_id = get_reg_id(y);
+                if(y_id == REG_ERR_MISSING){
+                    return REG_ERR_MISSING;
+                } else if(y_id == REG_ERR_UNKNOWN){
+                    return ERR_INVALID_OPERAND;
+                } else {
+                    // return 0xfx55
+                    return 0xf055 | (y_id & 0xf) << 8;
+                }
+            default:
+                return ERR_INVALID_OPERAND;
+
+        }
+    } else{
+        // x is a regular register
+        // check second operand y
+        y_id = get_reg_id(y);
+        if(y_id == REG_ERR_MISSING)
+            return REG_ERR_MISSING;
+        if(y_id == REG_ERR_UNKNOWN){
+            // so, y is byte or special operand
+            y_id = get_special_reg(y);
+            if(y_id == REG_ERR_UNKNOWN){ // so, y is byte
+                y_id = convert_char_to_nnn(y);
+                if(y_id == ERR_LARGE_DIGIT)
+                    return ERR_LARGE_DIGIT;
+                if(y_id > 0xff)
+                    return ERR_ALRGE_DIGIT
+                // return 0x6xkk
+                return 0x6000 | (x_id & 0xf) << 8 | y_id;
+            } else{
+                if(y_id == 0x1){ // second operand is [I]
+                    // return 0xfx65
+                    return 0xf065 | (x_id & 0xf) << 8;
+                } else if(y_id == 0x3){ // second operand is DT
+                    // return 0xfx07
+                    return 0xf007 | (x_id & 0xf) << 8;
+                } else if (y_id == 0x7){ // second operand is K
+                    // return 0xfx0a
+                    return 0xf00a | (x_id & 0xf) << 8;
+                } else {
+                    return ERR_INVALID_OPERAND; // wrong special register
+                }
+            }
+        } else{
+            // return LD Vx, Vy, 0x8xy0
+            return 0x8000 | (x_id & 0xf) << 8 | (y_id & 0xf) << 4; 
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
