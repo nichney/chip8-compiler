@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "parse.h"
 #include "utils.h"
@@ -25,8 +26,29 @@ int main(int argc, char* argv[]){
     
     char line[1024]; // more that enough for one line
     int linenumber = 1;
+    char *comment_start = NULL;
+    int is_empty;
 
     while(fgets(line, sizeof(line), fp) != NULL){
+        // find comments
+        comment_start = strchr(line, ';'); // 
+        if (comment_start != NULL) {
+            *comment_start = '\0'; // turn ';' into \0, so it's the end of C-string now
+        }
+
+        is_empty = 1;
+        for (int i = 0; line[i] != '\0'; i++) {
+            if (!isspace((unsigned char)line[i])) { 
+                is_empty = 0;
+                break;
+            }
+        }
+        if (is_empty) {
+            linenumber++;
+            continue; 
+        }
+
+
         int opcode = parse_for_opcode(line);
 
         // check for error on parsing

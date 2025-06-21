@@ -154,7 +154,7 @@ int get_special_reg(char* reg){
 int get_reg_id(char* reg){
     // reg is in format 'Vx', where x is one of 0-F
     if(strlen(reg) < 2)
-        return REG_ERR_MISSING;
+        return REG_ERR_UNKNOWN;
     if(reg[0] != 'V')
             return REG_ERR_UNKNOWN;
     switch(reg[1]){
@@ -213,7 +213,7 @@ int handle_reg_jp(char* reg, char* nnn){
     //check for errors
     if(reg_id == REG_ERR_UNKNOWN){
         //return REG_ERR_UNKNOWN;
-        return handle_jp(reg);
+        return handle_jp(reg); // BAD!!!
     }
     else if(reg_id == REG_ERR_MISSING){
         return REG_ERR_MISSING;
